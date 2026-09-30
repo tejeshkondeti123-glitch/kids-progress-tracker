@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "khan-kids-parent-companion": "file:..",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

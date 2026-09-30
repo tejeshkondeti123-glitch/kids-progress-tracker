@@ -13,6 +13,7 @@ app.use(express.json());
 
 // API Routes
 app.use('/api', apiRouter);
+app.use('/', apiRouter);
 
 // Serve static frontend in production if built
 const clientDist = path.join(__dirname, '..', 'client', 'dist');
