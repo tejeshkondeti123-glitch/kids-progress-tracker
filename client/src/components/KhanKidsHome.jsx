@@ -73,24 +73,11 @@ export default function KhanKidsHome({
     <div className="khan-kids-app-container">
       {/* KHAN KIDS TOP NAVIGATION BAR */}
       <header className="khan-kids-topbar">
-        {/* Left: For Parents Button */}
+        {/* Left: Child Profile Selector */}
         <div className="topbar-left">
-          <button
-            type="button"
-            className="btn-for-parents"
-            onClick={onOpenParentDashboard}
-            aria-label="Parent Dashboard Access"
-          >
-            <span className="parent-btn-icon" aria-hidden="true">🔒</span>
-            <span className="parent-btn-text">For Parents</span>
-          </button>
-        </div>
-
-        {/* Center: Child Profile Selector */}
-        <div className="topbar-center">
           <div className="child-profile-pill" onClick={() => setIsChildMenuOpen(!isChildMenuOpen)}>
             <div className="child-avatar-frame">
-              <CharacterAvatar avatar={activeChild?.avatar} size={36} />
+              <CharacterAvatar avatar={activeChild?.avatar} size={32} />
             </div>
             <div className="child-name-meta">
               <span className="child-name-label">{activeChild?.name || 'Sarah'}</span>
@@ -125,13 +112,14 @@ export default function KhanKidsHome({
           )}
         </div>
 
-        {/* Right: Star Counter & Audio Toggle */}
+        {/* Right: Star Counter, Audio Toggle & For Parents Button */}
         <div className="topbar-right">
           <button
             type="button"
             className="star-counter-pill"
             onClick={onOpenStickerBook}
             aria-label="View Star Rewards and Sticker Book"
+            title="Stars and Stickers"
           >
             <span className="star-icon" aria-hidden="true">⭐</span>
             <span className="star-count-num">{starCount}</span>
@@ -145,6 +133,17 @@ export default function KhanKidsHome({
             title={isMuted ? 'Audio Muted' : 'Audio On'}
           >
             {isMuted ? '🔇' : '🔊'}
+          </button>
+
+          <button
+            type="button"
+            className="btn-for-parents"
+            onClick={onOpenParentDashboard}
+            aria-label="Parent Dashboard Access"
+            title="Parent Companion"
+          >
+            <span className="parent-btn-icon" aria-hidden="true">🔒</span>
+            <span className="parent-btn-text">Parents</span>
           </button>
         </div>
       </header>
@@ -424,50 +423,6 @@ export default function KhanKidsHome({
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* BOTTOM MASCOT PARADE BAR */}
-        <div className="mascot-parade-dock">
-          <div
-            className="parade-mascot"
-            onClick={() => handleMascotTap('Sandy', 'Hi! Khan Academy Kids is full of wonder and joy!')}
-            title="Tap Sandy!"
-          >
-            <SandyDingo size={58} />
-            <span className="mascot-dock-label">Sandy</span>
-          </div>
-          <div
-            className="parade-mascot"
-            onClick={() => handleMascotTap('Ollo', 'Keep up the good work!')}
-            title="Tap Ollo!"
-          >
-            <OlloDingo size={58} />
-            <span className="mascot-dock-label">Ollo</span>
-          </div>
-          <div
-            className="parade-mascot active-guide"
-            onClick={() => handleMascotTap('Kodi', 'We are having so much fun learning today!')}
-            title="Tap Kodi!"
-          >
-            <KodiBear size={66} />
-            <span className="mascot-dock-label">Kodi</span>
-          </div>
-          <div
-            className="parade-mascot"
-            onClick={() => handleMascotTap('Reya', 'Every book is a brand new adventure!')}
-            title="Tap Reya!"
-          >
-            <ReyaRedPanda size={58} />
-            <span className="mascot-dock-label">Reya</span>
-          </div>
-          <div
-            className="parade-mascot"
-            onClick={() => handleMascotTap('Peck', 'Sing with me! Chirp chirp!')}
-            title="Tap Peck!"
-          >
-            <PeckBird size={54} />
-            <span className="mascot-dock-label">Peck</span>
           </div>
         </div>
       </main>
