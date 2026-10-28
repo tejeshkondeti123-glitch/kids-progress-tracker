@@ -58,9 +58,11 @@
 
 html, body {
   width: 100%;
+  max-width: 100vw;
   min-height: 100%;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
   background-color: #7dd3fc;
 }
 
@@ -74,13 +76,26 @@ body {
   padding: 0;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
   background-color: #f1f5f9; /* Clean soft backdrop on desktop */
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  max-width: 100vw;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
 }
 
 /* Mobile Application Master Container */
 .khan-academy-kids-app-root {
   width: 100%;
   max-width: 480px; /* Centered mobile container on wide desktop */
+  min-width: 0;
   min-height: 100vh;
   background-color: var(--bg-app);
   position: relative;
@@ -90,18 +105,26 @@ body {
   margin: 0 auto;
   overflow-x: hidden;
   padding-bottom: calc(76px + env(safe-area-inset-bottom, 12px)); /* Clears sticky mobile bottom nav */
+  box-sizing: border-box;
 }
 
 /* On mobile phones and touch devices, fill 100% edge-to-edge with ZERO black bars */
 @media (max-width: 640px) {
   html, body {
     background: linear-gradient(180deg, #7dd3fc 0%, #bae6fd 38%, #bbf7d0 50%, #4ade80 75%, #22c55e 100%) !important;
+    overflow-x: hidden !important;
+  }
+  #root {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
   }
   .khan-academy-kids-app-root {
     max-width: 100% !important;
     width: 100% !important;
     margin: 0 !important;
     box-shadow: none !important;
+    overflow-x: hidden !important;
   }
 }
 
@@ -5252,22 +5275,41 @@ body {
   color: #4ade80;
 }
 
-/* Parent Companion Mobile Layout */
+/* ==========================================================================
+   PARENT COMPANION MOBILE-FIRST ARCHITECTURE
+   ========================================================================== */
 .parent-companion-section {
   width: 100%;
+  max-width: 100vw;
+  min-width: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
   padding-bottom: 24px;
+  background: #f8fafc;
 }
 
 .parent-return-banner {
   background: #0f172a;
   color: #ffffff;
-  padding: 10px 14px;
+  padding: 8px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
   border-bottom: 1px solid #1e293b;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  min-width: 0;
+}
+
+.return-banner-left {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex-shrink: 1;
 }
 
 .btn-return-kids-app {
@@ -5282,7 +5324,24 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
   transition: all 0.15s ease;
+  min-width: 0;
+}
+
+.btn-return-text-desktop {
+  display: none;
+}
+.btn-return-text-mobile {
+  display: inline;
+}
+@media (min-width: 500px) {
+  .btn-return-text-desktop {
+    display: inline;
+  }
+  .btn-return-text-mobile {
+    display: none;
+  }
 }
 
 .btn-return-kids-app:hover {
@@ -5290,79 +5349,140 @@ body {
   color: #86efac;
 }
 
+.return-banner-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
 .parent-child-switcher {
   display: flex;
   align-items: center;
   gap: 6px;
+  min-width: 0;
 }
 
 .child-switcher-label {
-  font-size: 0.75rem;
-  color: #94a3b8;
-  font-weight: 600;
+  display: none;
+}
+@media (min-width: 440px) {
+  .child-switcher-label {
+    display: inline;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 600;
+  }
 }
 
 .child-badge-mini {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   background: #1e293b;
   padding: 3px 8px;
   border-radius: 9999px;
   border: 1px solid #334155;
+  min-width: 0;
 }
 
 .child-select-dropdown {
   background: transparent;
   color: #ffffff;
   border: none;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
   outline: none;
   cursor: pointer;
+  max-width: 90px;
 }
 
+.live-status-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: #86efac;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.live-status-text {
+  display: inline;
+}
+
+/* COURSE ROADMAP BANNER */
 .parent-course-roadmap-banner {
-  margin: 12px 14px;
-  padding: 14px;
+  margin: 10px 12px;
+  padding: 12px 14px;
   background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
   border: 2px solid #86efac;
-  border-radius: 18px;
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+  width: calc(100% - 24px);
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
+.roadmap-banner-top,
 .roadmap-banner-left {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
 }
 
 .roadmap-icon {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   line-height: 1;
+  flex-shrink: 0;
+}
+
+.roadmap-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  min-width: 0;
 }
 
 .roadmap-title {
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   font-weight: 800;
   color: #166534;
-  display: block;
+  line-height: 1.25;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .roadmap-sub {
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   color: #15803d;
   font-weight: 600;
-  display: block;
+  line-height: 1.2;
+}
+
+.roadmap-banner-bottom,
+.roadmap-banner-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
 }
 
 .roadmap-progress-track {
+  flex: 1;
   height: 8px;
   background: #bbf7d0;
   border-radius: 9999px;
   overflow: hidden;
+  min-width: 50px;
 }
 
 .roadmap-fill {
@@ -5376,21 +5496,30 @@ body {
   background: #16a34a;
   color: #ffffff;
   border: none;
-  padding: 8px 14px;
+  padding: 6px 12px;
   border-radius: 10px;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 700;
   cursor: pointer;
-  width: 100%;
-  text-align: center;
-  margin-top: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
 }
 
+.btn-open-roadmap-map:hover {
+  background: #15803d;
+}
+
+/* HORIZONTALLY SCROLLABLE NATIVE MOBILE TABS */
 .parent-nav-tabs-wrapper {
+  width: 100%;
+  max-width: 100%;
   overflow-x: auto;
-  padding: 8px 14px;
+  padding: 6px 12px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .parent-nav-tabs-wrapper::-webkit-scrollbar {
@@ -5399,22 +5528,27 @@ body {
 
 .parent-nav-tabs {
   display: flex;
-  gap: 8px;
-  white-space: nowrap;
+  gap: 6px;
+  width: max-content;
+  min-width: 0;
+  padding-bottom: 2px;
 }
 
 .parent-nav-tab-btn {
-  background: #f1f5f9;
+  background: #ffffff;
   border: 1px solid #e2e8f0;
-  padding: 8px 14px;
+  padding: 7px 13px;
   border-radius: 9999px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: #475569;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   transition: all 0.15s ease;
 }
 
@@ -5428,15 +5562,26 @@ body {
 .parent-nav-tab-btn .nav-tab-badge {
   background: #ea580c;
   color: #ffffff;
-  font-size: 0.65rem;
-  padding: 2px 6px;
+  font-size: 0.62rem;
+  padding: 1px 6px;
   border-radius: 9999px;
 }
 
+/* APP SHELL & CARD CONTAINER */
 .app-shell {
+  width: 100%;
   max-width: 100%;
-  margin: 10px auto 20px;
-  padding: 0 14px;
+  margin: 8px 0 24px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.screen-card-container {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* Modals Mobile Sizing */
@@ -5469,6 +5614,279 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   border-radius: 24px;
+}
+
+/* ==========================================================================
+   PARENT COMPANION MOBILE OPTIMIZATIONS (Screen 1, Screen 2, Tracker, Analytics)
+   ========================================================================== */
+
+/* 1. Global text protection to prevent word break blowouts */
+.tracker-heading,
+.analytics-heading,
+.screen-title,
+.roadmap-title,
+.opportunity-skill-title {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* 2. Activity Tracker View Mobile Rules */
+.activity-tracker-container {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .tracker-header-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .tracker-heading {
+    font-size: 1.25rem;
+    line-height: 1.2;
+    margin-bottom: 2px;
+  }
+  .tracker-subheading {
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+  .tracker-stats-pill {
+    padding: 4px 12px;
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 10px;
+  }
+  .count-num {
+    font-size: 1.05rem;
+    display: inline;
+  }
+  .count-label {
+    display: inline;
+    font-size: 0.72rem;
+  }
+  .tracker-filter-toolbar {
+    padding: 10px;
+    border-radius: 14px;
+    gap: 8px;
+  }
+  .tracker-search-input {
+    font-size: 0.82rem;
+    padding: 8px 30px 8px 32px;
+  }
+  .filter-group {
+    gap: 5px;
+  }
+  .filter-pill-btn {
+    padding: 4px 9px;
+    font-size: 0.74rem;
+  }
+  .activity-feed-list {
+    gap: 10px;
+  }
+  .activity-feed-card {
+    padding: 12px;
+    gap: 10px;
+    border-radius: 16px;
+  }
+  .feed-skill-title {
+    font-size: 0.92rem;
+  }
+  .feed-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .feed-actions-row {
+    gap: 6px;
+  }
+  .btn-action-pill {
+    font-size: 0.72rem;
+    padding: 5px 10px;
+  }
+}
+
+/* 3. Progress Analytics View Mobile Rules */
+.progress-analytics-container {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .analytics-header-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .analytics-heading {
+    font-size: 1.25rem;
+    line-height: 1.2;
+    margin-bottom: 2px;
+  }
+  .analytics-subheading {
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+  .analytics-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+  .btn-print-report,
+  .btn-practice-quick {
+    width: 100%;
+    text-align: center;
+    padding: 8px 12px;
+    font-size: 0.82rem;
+    border-radius: 10px;
+  }
+  .kpi-cards-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px;
+  }
+  .kpi-card {
+    padding: 10px;
+    gap: 8px;
+    border-radius: 14px;
+  }
+  .kpi-icon-box {
+    width: 34px;
+    height: 34px;
+    font-size: 1.05rem;
+    border-radius: 10px;
+  }
+  .kpi-val {
+    font-size: 1rem;
+  }
+  .kpi-lbl {
+    font-size: 0.68rem;
+  }
+  .analytics-dual-columns {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+  .analytics-panel {
+    padding: 12px;
+    border-radius: 16px;
+  }
+  .trend-bars-chart {
+    height: 140px;
+  }
+  .bar-track {
+    width: 22px;
+  }
+  .milestones-roadmap-panel {
+    gap: 10px;
+  }
+}
+
+/* 4. Screen 1 (Today's Learning) & Screen 2 (Try This at Home) Mobile Rules */
+@media (max-width: 640px) {
+  .app-header {
+    padding: 14px 12px 10px;
+  }
+  .header-top {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .child-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 1.15rem;
+  }
+  .child-info h2 {
+    font-size: 1rem;
+  }
+  .child-info p {
+    font-size: 0.72rem;
+  }
+  .date-pill {
+    font-size: 0.72rem;
+    padding: 3px 8px;
+  }
+  .screen-title {
+    font-size: 1.25rem;
+    line-height: 1.2;
+    margin: 4px 0 2px 0;
+  }
+  .screen-subtitle {
+    font-size: 0.8rem;
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  .content-body {
+    padding: 12px;
+  }
+  .section-title {
+    font-size: 1.05rem;
+  }
+  .learning-card {
+    padding: 12px;
+    border-radius: 14px;
+    gap: 8px;
+  }
+  .learning-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .learning-skill-name {
+    font-size: 0.95rem;
+  }
+  .learning-description {
+    font-size: 0.8rem;
+  }
+  .learning-meta {
+    font-size: 0.72rem;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .practice-opportunity-card {
+    padding: 14px;
+    border-radius: 16px;
+  }
+  .opportunity-skill-title {
+    font-size: 1.05rem;
+  }
+  .opportunity-explanation {
+    font-size: 0.82rem;
+  }
+  .btn-primary-action {
+    width: 100%;
+    padding: 12px;
+    font-size: 0.92rem;
+    border-radius: 12px;
+  }
+  .try-this-header {
+    padding: 14px 12px 10px;
+  }
+  .activity-title {
+    font-size: 1.25rem;
+  }
+  .activity-detail-card {
+    padding: 14px;
+    border-radius: 16px;
+  }
+  .observation-form {
+    padding: 14px;
+    border-radius: 16px;
+  }
+  .btn-submit-obs {
+    width: 100%;
+    padding: 12px;
+    font-size: 0.92rem;
+    border-radius: 12px;
+  }
 }
 
 

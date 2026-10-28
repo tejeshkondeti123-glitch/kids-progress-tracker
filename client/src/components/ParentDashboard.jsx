@@ -67,7 +67,8 @@ export default function ParentDashboard({
             aria-label="Return to Khan Academy Kids App"
           >
             <span aria-hidden="true">🏕️</span>
-            <span>← Return to Khan Academy Kids</span>
+            <span className="btn-return-text-desktop">← Return to Khan Academy Kids</span>
+            <span className="btn-return-text-mobile">← Kids Camp</span>
           </button>
         </div>
 
@@ -75,7 +76,7 @@ export default function ParentDashboard({
           <div className="parent-child-switcher">
             <span className="child-switcher-label">Learner:</span>
             <div className="child-badge-mini">
-              <CharacterAvatar avatar={activeChild?.avatar} size={28} />
+              <CharacterAvatar avatar={activeChild?.avatar} size={22} />
               <select
                 className="child-select-dropdown"
                 value={activeChild?.id}
@@ -87,35 +88,36 @@ export default function ParentDashboard({
               >
                 {availableChildren.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.name} (Age {c.age})
+                    {c.name} ({c.age}y)
                   </option>
                 ))}
               </select>
             </div>
           </div>
-          <span className="live-status-pill">
-            <span className="status-dot"></span> Live Connected
+          <span className="live-status-pill" title="Live Connected to Kids App">
+            <span className="status-dot"></span>
+            <span className="live-status-text">Live</span>
           </span>
         </div>
       </div>
 
       {/* PARENT COURSE PROGRESSION BANNER */}
       <div className="parent-course-roadmap-banner">
-        <div className="roadmap-banner-left">
+        <div className="roadmap-banner-top">
           <span className="roadmap-icon">🗺️</span>
           <div className="roadmap-meta">
             <span className="roadmap-title">
               {percentComplete >= 100
-                ? `🎓 Course Completed! ${activeChild?.name || 'Sarah'} has graduated all 8 levels!`
+                ? `🎓 Course Completed! ${activeChild?.name || 'Sarah'} graduated!`
                 : `Level Progression: Level ${courseProgress?.currentLevelNum || 4} of 8 (${percentComplete}% Mastered)`}
             </span>
             <span className="roadmap-sub">
-              {completedCount} of 8 sequential levels completed • Organized level-by-level
+              {completedCount} of 8 levels completed • Level-by-level
             </span>
           </div>
         </div>
 
-        <div className="roadmap-banner-right">
+        <div className="roadmap-banner-bottom">
           <div className="roadmap-progress-track">
             <div className="roadmap-fill" style={{ width: `${percentComplete}%` }}></div>
           </div>
@@ -149,7 +151,7 @@ export default function ParentDashboard({
             onClick={() => setCurrentScreen('analytics')}
           >
             <span className="nav-tab-icon">📊</span>
-            <span className="nav-tab-text">Milestone & Progress Analytics</span>
+            <span className="nav-tab-text">Analytics</span>
           </button>
 
           <button
@@ -167,7 +169,7 @@ export default function ParentDashboard({
             onClick={() => setCurrentScreen('screen2')}
           >
             <span className="nav-tab-icon">🏡</span>
-            <span className="nav-tab-text">Try This at Home</span>
+            <span className="nav-tab-text">Home Play</span>
             {effectiveOpportunity && (
               <span className="nav-tab-badge">Recommended</span>
             )}

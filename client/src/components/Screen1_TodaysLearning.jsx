@@ -75,8 +75,8 @@ export default function Screen1_TodaysLearning({
         <h1 className="screen-title">Today&apos;s Learning</h1>
         <p className="screen-subtitle">
           {version === 'V2' || version === 'V3'
-            ? 'A quick overview of what Sarah practiced and how you can support her.'
-            : 'Review what your child practiced and discover a quick home activity.'}
+            ? `A quick overview of what ${child.name} practiced and how you can support learning.`
+            : `Review what ${child.name} practiced and discover a quick home activity.`}
         </p>
 
         {/* V3 Enhancement: Friendly Effort / Progress Callout */}
@@ -97,7 +97,7 @@ export default function Screen1_TodaysLearning({
             }}
           >
             <span>🌟</span>
-            <span>Great curiosity today! Sarah engaged with {activities.length} digital learning items.</span>
+            <span>Great curiosity today! {child.name} engaged with {activities.length} digital learning items.</span>
           </div>
         )}
       </header>
@@ -107,7 +107,7 @@ export default function Screen1_TodaysLearning({
         <section aria-labelledby="section-learned-title">
           <div className="section-header">
             <h2 id="section-learned-title" className="section-title">
-              <span>📚</span> What your child learned
+              <span>📚</span> What {child.name} learned
             </h2>
             <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
               {activities.length} {activities.length === 1 ? 'activity' : 'activities'}
@@ -115,11 +115,11 @@ export default function Screen1_TodaysLearning({
           </div>
 
           {activities.length === 0 ? (
-            <div className="state-container" style={{ background: '#f8fafc', borderRadius: '14px', padding: '28px 20px' }}>
+            <div className="state-container" style={{ background: '#f8fafc', borderRadius: '14px', padding: '24px 16px' }}>
               <div className="state-icon" aria-hidden="true">📖</div>
               <h3 className="state-title">No learning activities recorded for today.</h3>
               <p className="state-desc">
-                When Sarah completes activities in Khan Academy Kids, they will automatically appear here.
+                When {child.name} completes activities in Khan Academy Kids, they will automatically appear here.
               </p>
             </div>
           ) : (
