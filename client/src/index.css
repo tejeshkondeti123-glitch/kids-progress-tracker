@@ -58,11 +58,40 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--bg-app);
+  background: #0b1120; /* Sleek dark neutral backdrop on desktop, highlighting mobile application */
   color: var(--text-primary);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+}
+
+/* Mobile Application Master Container */
+.khan-academy-kids-app-root {
+  width: 100%;
+  max-width: 440px; /* Flagship smartphone mobile layout width */
+  min-height: 100vh;
+  background-color: var(--bg-app);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.45);
+  margin: 0 auto;
+  overflow-x: hidden;
+  padding-bottom: 74px; /* Space for sticky mobile bottom navigation */
+}
+
+@media (max-width: 480px) {
+  body {
+    background-color: var(--bg-app);
+  }
+  .khan-academy-kids-app-root {
+    max-width: 100%;
+    box-shadow: none;
+  }
 }
 
 /* Researcher Academic Control Bar */
@@ -5041,6 +5070,315 @@ body {
   font-weight: 800;
   cursor: pointer;
 }
+
+/* ==========================================================================
+   NATIVE MOBILE APPLICATION NAVIGATION & STYLES
+   ========================================================================== */
+
+/* Fixed Mobile Bottom Navigation Dock */
+.mobile-app-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 440px;
+  background: rgba(15, 23, 42, 0.96);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 6px 10px 8px 10px;
+  z-index: 1000;
+  box-shadow: 0 -6px 25px rgba(0, 0, 0, 0.35);
+  user-select: none;
+}
+
+@media (max-width: 480px) {
+  .mobile-app-bottom-nav {
+    max-width: 100%;
+    left: 0;
+    transform: none;
+  }
+}
+
+.mobile-nav-items {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 3px;
+}
+
+.mobile-nav-btn {
+  background: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 6px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: #94a3b8;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  flex: 1;
+  min-height: 48px;
+}
+
+.mobile-nav-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.mobile-nav-btn.active {
+  color: #38bdf8;
+  background: rgba(2, 132, 199, 0.2);
+}
+
+.mobile-nav-btn.active .nav-icon {
+  transform: translateY(-2px) scale(1.12);
+}
+
+.mobile-nav-btn .nav-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.mobile-nav-btn .nav-text {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.mobile-nav-btn.parent-btn {
+  color: #fbbf24;
+}
+
+.mobile-nav-btn.return-kids-btn {
+  color: #4ade80;
+}
+
+/* Parent Companion Mobile Layout */
+.parent-companion-section {
+  width: 100%;
+  padding-bottom: 24px;
+}
+
+.parent-return-banner {
+  background: #0f172a;
+  color: #ffffff;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #1e293b;
+}
+
+.btn-return-kids-app {
+  background: #1e293b;
+  color: #4ade80;
+  border: 1px solid #334155;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-return-kids-app:hover {
+  background: #334155;
+  color: #86efac;
+}
+
+.parent-child-switcher {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.child-switcher-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.child-badge-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #1e293b;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  border: 1px solid #334155;
+}
+
+.child-select-dropdown {
+  background: transparent;
+  color: #ffffff;
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+}
+
+.parent-course-roadmap-banner {
+  margin: 12px 14px;
+  padding: 14px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 2px solid #86efac;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.roadmap-banner-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.roadmap-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.roadmap-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #166534;
+  display: block;
+}
+
+.roadmap-sub {
+  font-size: 0.74rem;
+  color: #15803d;
+  font-weight: 600;
+  display: block;
+}
+
+.roadmap-progress-track {
+  height: 8px;
+  background: #bbf7d0;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.roadmap-fill {
+  height: 100%;
+  background: #16a34a;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.btn-open-roadmap-map {
+  background: #16a34a;
+  color: #ffffff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  margin-top: 4px;
+}
+
+.parent-nav-tabs-wrapper {
+  overflow-x: auto;
+  padding: 8px 14px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.parent-nav-tabs-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.parent-nav-tabs {
+  display: flex;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.parent-nav-tab-btn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.parent-nav-tab-btn.active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+}
+
+.parent-nav-tab-btn .nav-tab-badge {
+  background: #ea580c;
+  color: #ffffff;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 9999px;
+}
+
+.app-shell {
+  max-width: 100%;
+  margin: 10px auto 20px;
+  padding: 0 14px;
+}
+
+/* Modals Mobile Sizing */
+.modal-overlay,
+.math-adventure-modal-backdrop,
+.sticker-book-overlay,
+.course-map-modal-backdrop,
+.gate-modal-backdrop,
+.rewards-club-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+}
+
+.modal-card,
+.math-adventure-dialog,
+.sticker-book-container,
+.course-map-dialog,
+.gate-dialog,
+.rewards-clubhouse-dialog {
+  width: 100%;
+  max-width: 440px;
+  max-height: 94vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 24px;
+}
+
 
 
 

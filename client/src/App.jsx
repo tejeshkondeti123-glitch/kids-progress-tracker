@@ -28,6 +28,7 @@ import { sounds } from './services/soundEffects';
 export default function App() {
   // Navigation mode: 'kids' (Khan Academy Kids App) | 'parent' (Parent Dashboard)
   const [appMode, setAppMode] = useState('kids');
+  const [parentTab, setParentTab] = useState('screen1'); // 'screen1' | 'analytics' | 'tracker' | 'screen2'
 
   // Active game modal: null | 'counting' | 'shapes' | 'story' | 'alphabet' | 'addition' | 'subtraction' | 'multiplication' | 'division'
   const [activeGame, setActiveGame] = useState(null);
@@ -265,6 +266,8 @@ export default function App() {
           }}
           courseProgress={courseProgress}
           onOpenCourseMap={() => setIsCourseMapOpen(true)}
+          currentScreen={parentTab}
+          onScreenChange={setParentTab}
         />
       )}
 
@@ -384,6 +387,145 @@ export default function App() {
           onCompleteActivity={handleGameComplete}
         />
       )}
+
+      {/* FIXED MOBILE APPLICATION BOTTOM NAVIGATION BAR */}
+      <nav className="mobile-app-bottom-nav" aria-label="Mobile Navigation">
+        {appMode === 'kids' ? (
+          <div className="mobile-nav-items kids-dock">
+            <button
+              type="button"
+              className="mobile-nav-btn active"
+              onClick={() => {
+                sounds.playPop(480);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              title="Camp Home"
+            >
+              <span className="nav-icon" aria-hidden="true">🏕️</span>
+              <span className="nav-text">Camp</span>
+            </button>
+
+            <button
+              type="button"
+              className="mobile-nav-btn"
+              onClick={() => {
+                sounds.playPop(520);
+                setIsCourseMapOpen(true);
+              }}
+              title="Sequential Course Path"
+            >
+              <span className="nav-icon" aria-hidden="true">🗺️</span>
+              <span className="nav-text">Course L{courseProgress?.currentLevelNum || 1}</span>
+            </button>
+
+            <button
+              type="button"
+              className="mobile-nav-btn"
+              onClick={() => {
+                sounds.playPop(520);
+                setIsRewardsModalOpen(true);
+              }}
+              title="Rewards Clubhouse"
+            >
+              <span className="nav-icon" aria-hidden="true">🏆</span>
+              <span className="nav-text">Rewards</span>
+            </button>
+
+            <button
+              type="button"
+              className="mobile-nav-btn"
+              onClick={() => {
+                sounds.playPop(520);
+                setIsStickerBookOpen(true);
+              }}
+              title="Sticker Book"
+            >
+              <span className="nav-icon" aria-hidden="true">⭐</span>
+              <span className="nav-text">Stickers</span>
+            </button>
+
+            <button
+              type="button"
+              className="mobile-nav-btn parent-btn"
+              onClick={() => {
+                sounds.playPop(440);
+                setIsParentGateOpen(true);
+              }}
+              title="Parents Portal"
+            >
+              <span className="nav-icon" aria-hidden="true">🔒</span>
+              <span className="nav-text">Parents</span>
+            </button>
+          </div>
+        ) : (
+          <div className="mobile-nav-items parent-dock">
+            <button
+              type="button"
+              className={`mobile-nav-btn ${parentTab === 'screen1' ? 'active' : ''}`}
+              onClick={() => {
+                sounds.playPop(480);
+                setParentTab('screen1');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            >
+              <span className="nav-icon" aria-hidden="true">📋</span>
+              <span className="nav-text">Today</span>
+            </button>
+
+            <button
+              type="button"
+              className={`mobile-nav-btn ${parentTab === 'analytics' ? 'active' : ''}`}
+              onClick={() => {
+                sounds.playPop(480);
+                setParentTab('analytics');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            >
+              <span className="nav-icon" aria-hidden="true">📊</span>
+              <span className="nav-text">Analytics</span>
+            </button>
+
+            <button
+              type="button"
+              className={`mobile-nav-btn ${parentTab === 'tracker' ? 'active' : ''}`}
+              onClick={() => {
+                sounds.playPop(480);
+                setParentTab('tracker');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            >
+              <span className="nav-icon" aria-hidden="true">⚡</span>
+              <span className="nav-text">Tracker</span>
+            </button>
+
+            <button
+              type="button"
+              className={`mobile-nav-btn ${parentTab === 'screen2' ? 'active' : ''}`}
+              onClick={() => {
+                sounds.playPop(480);
+                setParentTab('screen2');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            >
+              <span className="nav-icon" aria-hidden="true">🏡</span>
+              <span className="nav-text">Home Play</span>
+            </button>
+
+            <button
+              type="button"
+              className="mobile-nav-btn return-kids-btn"
+              onClick={() => {
+                sounds.playPop(440);
+                setAppMode('kids');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            >
+              <span className="nav-icon" aria-hidden="true">🏕️</span>
+              <span className="nav-text">Kids Camp</span>
+            </button>
+          </div>
+        )}
+      </nav>
     </div>
   );
 }

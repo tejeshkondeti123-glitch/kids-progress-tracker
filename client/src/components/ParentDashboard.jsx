@@ -24,8 +24,17 @@ export default function ParentDashboard({
   onLaunchMathPractice,
   courseProgress,
   onOpenCourseMap,
+  currentScreen: controlledScreen,
+  onScreenChange,
 }) {
-  const [currentScreen, setCurrentScreen] = useState('screen1'); // 'screen1' | 'screen2' | 'analytics' | 'tracker'
+  const [internalScreen, setInternalScreen] = useState('screen1'); // 'screen1' | 'screen2' | 'analytics' | 'tracker'
+  const currentScreen = controlledScreen || internalScreen;
+
+  const setCurrentScreen = (scr) => {
+    setInternalScreen(scr);
+    if (onScreenChange) onScreenChange(scr);
+  };
+
   const [selectedOpportunity, setSelectedOpportunity] = useState(null);
 
   const effectiveOpportunity = selectedOpportunity || summary?.practiceOpportunity;

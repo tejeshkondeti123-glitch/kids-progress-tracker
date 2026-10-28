@@ -125,32 +125,8 @@ export default function KhanKidsHome({
           )}
         </div>
 
-        {/* Right: Course Path, Rewards, Star Counter & Sound Toggle */}
+        {/* Right: Star Counter & Audio Toggle */}
         <div className="topbar-right">
-          <button
-            type="button"
-            className="course-path-topbar-pill"
-            onClick={onOpenCourseMap}
-            aria-label="Open Course Journey Map"
-            title="Step-by-step Learning Course"
-          >
-            <span className="course-btn-icon" aria-hidden="true">🗺️</span>
-            <span className="course-btn-text">
-              {isFinished ? 'Graduated! 🎓' : `Level ${currentLevel.levelNum} / 8`}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            className="rewards-club-pill"
-            onClick={onOpenRewards}
-            aria-label="Open Rewards and Trophy Clubhouse"
-            title="Trophies, Outfits & Streak"
-          >
-            <span className="trophy-btn-icon" aria-hidden="true">🏆</span>
-            <span className="trophy-btn-text">Rewards</span>
-          </button>
-
           <button
             type="button"
             className="star-counter-pill"
@@ -159,7 +135,6 @@ export default function KhanKidsHome({
           >
             <span className="star-icon" aria-hidden="true">⭐</span>
             <span className="star-count-num">{starCount}</span>
-            <span className="sticker-book-tag">Stickers</span>
           </button>
 
           <button
