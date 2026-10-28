@@ -135,6 +135,62 @@ function getInitialSeedData() {
       duration: '5 minutes',
       reason: 'Develops mathematical reasoning and foundational pattern recognition.',
     },
+    {
+      id: 'real_006',
+      skill: 'Addition',
+      title: 'Snack Time Addition Baskets',
+      description: 'Combine two groups of healthy snacks to see how addition works in real life.',
+      instructions: [
+        'Place 2 grapes on one plate and 3 grapes on another plate.',
+        'Ask: "If we put them both in Kodi\'s big bowl, how many do we have altogether?"',
+        'Count them together as they are moved: "1, 2... and 3, 4, 5!"',
+        'Celebrate: "2 plus 3 equals 5 delicious grapes!"',
+      ],
+      duration: '5 minutes',
+      reason: 'Grounds additive reasoning in tangible physical grouping and counting.',
+    },
+    {
+      id: 'real_007',
+      skill: 'Subtraction',
+      title: 'Take-Away Toy Garage',
+      description: 'Line up toy cars or blocks and practice taking away items.',
+      instructions: [
+        'Line up 5 toy cars or blocks on the floor.',
+        'Ask: "We have 5 cars. If 2 cars drive away to the carwash, how many stay?"',
+        'Have your child drive 2 cars away.',
+        'Count the remaining cars: "1, 2, 3! 5 minus 2 equals 3!"',
+      ],
+      duration: '5 minutes',
+      reason: 'Reinforces subtraction as the real-world action of taking away or separating.',
+    },
+    {
+      id: 'real_008',
+      skill: 'Multiplication',
+      title: 'Pair-Up & Equal Groups Safari',
+      description: 'Explore multiplication visually using equal groups of household items.',
+      instructions: [
+        'Make 3 separate groups of 2 socks or crayons.',
+        'Ask: "How many groups do we have? And how many are inside each group?"',
+        'Explain: "3 groups of 2 is the same as 3 times 2!"',
+        'Count them together by 2s: "2, 4, 6! 3 times 2 is 6!"',
+      ],
+      duration: '5 minutes',
+      reason: 'Builds foundational multiplicative intuition through skip-counting and equal grouping.',
+    },
+    {
+      id: 'real_009',
+      skill: 'Division',
+      title: 'Fair Share Picnic',
+      description: 'Divide snacks or toys equally between family members or stuffed animals.',
+      instructions: [
+        'Place 6 crackers or baby carrots on a cutting board with 2 stuffed animals sitting down.',
+        'Ask: "We have 6 snacks for 2 friends. How can we make it fair so each friend gets the same amount?"',
+        'Guide them to give "One for you, one for you" until all snacks are distributed.',
+        'Count: "Each friend got 3! 6 divided by 2 is 3!"',
+      ],
+      duration: '5 minutes',
+      reason: 'Connects the concept of division to the social intuition of fairness and sharing.',
+    },
   ];
 
   const parentObservations = [

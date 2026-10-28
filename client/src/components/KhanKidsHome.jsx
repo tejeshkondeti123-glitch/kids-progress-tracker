@@ -2,20 +2,58 @@
 import React, { useState } from 'react';
 import { KodiBear, OlloDingo, ReyaRedPanda, PeckBird, SandyDingo, CharacterAvatar } from './Characters';
 import { sounds } from '../services/soundEffects';
+import { COURSE_LEVELS } from '../services/curriculumCourse';
 
 export default function KhanKidsHome({
   activeChild,
   availableChildren = [],
   onSelectChild,
   onOpenParentDashboard,
-  onLaunchGame, // 'counting' | 'shapes' | 'story' | 'alphabet' | 'stickers'
+  onLaunchGame, // 'counting' | 'shapes' | 'story' | 'alphabet' | 'addition' | 'subtraction' | 'multiplication' | 'division'
   starCount = 18,
   onOpenStickerBook,
+  onOpenRewards,
+  courseProgress,
+  onOpenCourseMap,
 }) {
   const [isChildMenuOpen, setIsChildMenuOpen] = useState(false);
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [mascotQuote, setMascotQuote] = useState('Welcome to Khan Academy Kids! Tap anywhere to learn & play!');
   const [isMuted, setIsMuted] = useState(sounds.isMuted);
+
+  const completedSet = new Set(courseProgress?.completedLevelIds || []);
+  const allUnlocked = !!courseProgress?.allUnlocked;
+
+  const currentLevel =
+    COURSE_LEVELS.find((lvl) => !completedSet.has(lvl.id)) ||
+    COURSE_LEVELS[COURSE_LEVELS.length - 1];
+  const isFinished = completedSet.size >= COURSE_LEVELS.length;
+
+  const getLevelStatus = (gameType) => {
+    const lvl = COURSE_LEVELS.find((l) => l.gameType === gameType);
+    if (!lvl) return 'available';
+    if (completedSet.has(lvl.id)) return 'completed';
+    if (lvl.id === currentLevel.id) return 'current';
+    if (!allUnlocked) return 'locked';
+    return 'available';
+  };
+
+  const handleLaunchWithLockCheck = (gameType) => {
+    const status = getLevelStatus(gameType);
+    const lvl = COURSE_LEVELS.find((l) => l.gameType === gameType);
+
+    if (status === 'locked' && !allUnlocked) {
+      sounds.playGentleTryAgain();
+      sounds.speak(
+        `Please complete Level ${currentLevel.levelNum} (${currentLevel.title}) first to unlock this activity!`
+      );
+      if (onOpenCourseMap) onOpenCourseMap();
+      return;
+    }
+
+    sounds.playPop(520);
+    onLaunchGame(gameType);
+  };
 
   const handleMascotTap = (name, quote) => {
     sounds.playPop(520);
@@ -87,8 +125,32 @@ export default function KhanKidsHome({
           )}
         </div>
 
-        {/* Right: Star Counter & Sound Toggle */}
+        {/* Right: Course Path, Rewards, Star Counter & Sound Toggle */}
         <div className="topbar-right">
+          <button
+            type="button"
+            className="course-path-topbar-pill"
+            onClick={onOpenCourseMap}
+            aria-label="Open Course Journey Map"
+            title="Step-by-step Learning Course"
+          >
+            <span className="course-btn-icon" aria-hidden="true">🗺️</span>
+            <span className="course-btn-text">
+              {isFinished ? 'Graduated! 🎓' : `Level ${currentLevel.levelNum} / 8`}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className="rewards-club-pill"
+            onClick={onOpenRewards}
+            aria-label="Open Rewards and Trophy Clubhouse"
+            title="Trophies, Outfits & Streak"
+          >
+            <span className="trophy-btn-icon" aria-hidden="true">🏆</span>
+            <span className="trophy-btn-text">Rewards</span>
+          </button>
+
           <button
             type="button"
             className="star-counter-pill"
@@ -118,6 +180,41 @@ export default function KhanKidsHome({
         <span className="bubble-text">{mascotQuote}</span>
       </div>
 
+      {/* STEP-BY-STEP COURSE PROGRESS BANNER */}
+      <div className="home-course-path-banner" onClick={onOpenCourseMap} role="button" tabIndex={0}>
+        <div className="path-banner-left">
+          <span className="path-badge-icon">🗺️</span>
+          <div className="path-banner-info">
+            <span className="path-title">
+              {isFinished
+                ? '🎓 Course Completed! Tap to view your Official Graduation Diploma'
+                : `Next Mission: Level ${currentLevel.levelNum} • ${currentLevel.title}`}
+            </span>
+            <span className="path-subtext">
+              {isFinished
+                ? 'You finished all 8 foundational levels with high marks!'
+                : `${completedSet.size} of 8 levels finished • Learn step-by-step`}
+            </span>
+          </div>
+        </div>
+        <div className="path-banner-right">
+          <div className="path-mini-progress">
+            <div className="mini-track">
+              <div
+                className="mini-fill"
+                style={{
+                  width: `${Math.round((completedSet.size / COURSE_LEVELS.length) * 100)}%`,
+                }}
+              ></div>
+            </div>
+            <span className="mini-percent">
+              {Math.round((completedSet.size / COURSE_LEVELS.length) * 100)}%
+            </span>
+          </div>
+          <span className="btn-view-map-pill">View Course Map ➔</span>
+        </div>
+      </div>
+
       {/* MAIN PLAYGROUND / SCENIC TREEHOUSE LANDSCAPE */}
       <main className="khan-kids-landscape">
         {/* Animated Sky Elements */}
@@ -129,50 +226,136 @@ export default function KhanKidsHome({
 
         {/* Big Central Play Adventure Button with Kodi */}
         <div className="central-play-pod">
-          <div className="kodi-host-wrapper" onClick={() => handleMascotTap('Kodi', 'Are you ready for our daily counting adventure?')}>
+          <div
+            className="kodi-host-wrapper"
+            onClick={() =>
+              handleMascotTap(
+                'Kodi',
+                isFinished
+                  ? 'Congratulations! You graduated the whole course!'
+                  : `Are you ready for Level ${currentLevel.levelNum}: ${currentLevel.title}?`
+              )
+            }
+          >
             <KodiBear size={140} mood="happy" className="hover-bounce" />
           </div>
 
           <button
             type="button"
             className="big-play-btn"
-            onClick={() => onLaunchGame('counting')}
-            aria-label="Start Today's Learning Journey with Kodi"
+            onClick={() => handleLaunchWithLockCheck(currentLevel.gameType)}
+            aria-label={`Start Level ${currentLevel.levelNum}: ${currentLevel.title}`}
           >
             <span className="play-triangle" aria-hidden="true">▶</span>
             <span className="play-btn-text">PLAY!</span>
-            <span className="play-subtext">Today&apos;s Adventure</span>
+            <span className="play-subtext">
+              Level {currentLevel.levelNum}: {currentLevel.skill}
+            </span>
           </button>
         </div>
 
         {/* LEARNING STATIONS ISLANDS */}
         <div className="learning-islands-grid">
-          {/* Station 1: Math Camp */}
+          {/* Station 1: Math Camp with all 4 operations */}
           <div className="island-card math-island">
             <div className="island-header">
               <span className="island-badge">🔢 Math Camp</span>
-              <span className="island-stars">⭐⭐⭐</span>
+              <span className="island-stars">⭐⭐⭐⭐</span>
             </div>
             <div className="island-content">
               <div className="island-character-icon">
-                <OlloDingo size={80} onClick={() => handleMascotTap('Ollo', 'Shapes and counting are my absolute favorite!')} />
+                <OlloDingo size={80} onClick={() => handleMascotTap('Ollo', 'Addition, Subtraction, Multiplication and Division are super fun!')} />
               </div>
-              <div className="island-actions">
+              <div className="island-actions math-grid-actions">
                 <button
                   type="button"
-                  className="station-btn count-btn"
-                  onClick={() => onLaunchGame('counting')}
+                  className={`station-btn math-mod-btn addition-color ${
+                    getLevelStatus('addition') === 'locked' ? 'is-locked' : ''
+                  }`}
+                  onClick={() => handleLaunchWithLockCheck('addition')}
                 >
-                  <span>Counting 1-10</span>
-                  <span className="station-btn-arrow">➔</span>
+                  <span>🍎 Addition (L4)</span>
+                  <span className="station-btn-arrow">
+                    {getLevelStatus('addition') === 'completed'
+                      ? '✓'
+                      : getLevelStatus('addition') === 'current'
+                      ? '▶'
+                      : getLevelStatus('addition') === 'locked'
+                      ? '🔒'
+                      : '➔'}
+                  </span>
                 </button>
                 <button
                   type="button"
-                  className="station-btn shape-btn"
-                  onClick={() => onLaunchGame('shapes')}
+                  className={`station-btn math-mod-btn subtraction-color ${
+                    getLevelStatus('subtraction') === 'locked' ? 'is-locked' : ''
+                  }`}
+                  onClick={() => handleLaunchWithLockCheck('subtraction')}
                 >
-                  <span>Shape Safari</span>
-                  <span className="station-btn-arrow">➔</span>
+                  <span>⭐ Subtraction (L5)</span>
+                  <span className="station-btn-arrow">
+                    {getLevelStatus('subtraction') === 'completed'
+                      ? '✓'
+                      : getLevelStatus('subtraction') === 'current'
+                      ? '▶'
+                      : getLevelStatus('subtraction') === 'locked'
+                      ? '🔒'
+                      : '➔'}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className={`station-btn math-mod-btn multiplication-color ${
+                    getLevelStatus('multiplication') === 'locked' ? 'is-locked' : ''
+                  }`}
+                  onClick={() => handleLaunchWithLockCheck('multiplication')}
+                >
+                  <span>🐸 Multiply (L7)</span>
+                  <span className="station-btn-arrow">
+                    {getLevelStatus('multiplication') === 'completed'
+                      ? '✓'
+                      : getLevelStatus('multiplication') === 'current'
+                      ? '▶'
+                      : getLevelStatus('multiplication') === 'locked'
+                      ? '🔒'
+                      : '➔'}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className={`station-btn math-mod-btn division-color ${
+                    getLevelStatus('division') === 'locked' ? 'is-locked' : ''
+                  }`}
+                  onClick={() => handleLaunchWithLockCheck('division')}
+                >
+                  <span>🧁 Division (L8)</span>
+                  <span className="station-btn-arrow">
+                    {getLevelStatus('division') === 'completed'
+                      ? '✓'
+                      : getLevelStatus('division') === 'current'
+                      ? '▶'
+                      : getLevelStatus('division') === 'locked'
+                      ? '🔒'
+                      : '➔'}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className={`station-btn count-btn mini ${
+                    getLevelStatus('counting') === 'locked' ? 'is-locked' : ''
+                  }`}
+                  onClick={() => handleLaunchWithLockCheck('counting')}
+                >
+                  <span>Counting 1-10 (L1) {getLevelStatus('counting') === 'completed' && '✓'}</span>
+                </button>
+                <button
+                  type="button"
+                  className={`station-btn shape-btn mini ${
+                    getLevelStatus('shapes') === 'locked' ? 'is-locked' : ''
+                  }`}
+                  onClick={() => handleLaunchWithLockCheck('shapes')}
+                >
+                  <span>Shape Safari (L2) {getLevelStatus('shapes') === 'completed' && '✓'}</span>
                 </button>
               </div>
             </div>
@@ -191,19 +374,39 @@ export default function KhanKidsHome({
               <div className="island-actions">
                 <button
                   type="button"
-                  className="station-btn story-btn"
-                  onClick={() => onLaunchGame('story')}
+                  className={`station-btn story-btn ${
+                    getLevelStatus('story') === 'locked' ? 'is-locked' : ''
+                  }`}
+                  onClick={() => handleLaunchWithLockCheck('story')}
                 >
-                  <span>Story Time</span>
-                  <span className="station-btn-arrow">➔</span>
+                  <span>Story Time (L6)</span>
+                  <span className="station-btn-arrow">
+                    {getLevelStatus('story') === 'completed'
+                      ? '✓'
+                      : getLevelStatus('story') === 'current'
+                      ? '▶'
+                      : getLevelStatus('story') === 'locked'
+                      ? '🔒'
+                      : '➔'}
+                  </span>
                 </button>
                 <button
                   type="button"
-                  className="station-btn abc-btn"
-                  onClick={() => onLaunchGame('alphabet')}
+                  className={`station-btn abc-btn ${
+                    getLevelStatus('alphabet') === 'locked' ? 'is-locked' : ''
+                  }`}
+                  onClick={() => handleLaunchWithLockCheck('alphabet')}
                 >
-                  <span>Letter Sounds</span>
-                  <span className="station-btn-arrow">➔</span>
+                  <span>Letter Sounds (L3)</span>
+                  <span className="station-btn-arrow">
+                    {getLevelStatus('alphabet') === 'completed'
+                      ? '✓'
+                      : getLevelStatus('alphabet') === 'current'
+                      ? '▶'
+                      : getLevelStatus('alphabet') === 'locked'
+                      ? '🔒'
+                      : '➔'}
+                  </span>
                 </button>
               </div>
             </div>
@@ -212,14 +415,22 @@ export default function KhanKidsHome({
           {/* Station 3: Library & Creative Stickers */}
           <div className="island-card create-island">
             <div className="island-header">
-              <span className="island-badge">🎨 Creative & Library</span>
+              <span className="island-badge">🎨 Creative & Rewards</span>
               <span className="island-stars">⭐⭐⭐</span>
             </div>
             <div className="island-content">
               <div className="island-character-icon">
-                <PeckBird size={74} onClick={() => handleMascotTap('Peck', 'Look at all the awesome stickers you earned!')} />
+                <PeckBird size={74} onClick={() => handleMascotTap('Peck', 'Look at all the awesome rewards and trophies you unlocked!')} />
               </div>
               <div className="island-actions">
+                <button
+                  type="button"
+                  className="station-btn trophy-club-btn"
+                  onClick={onOpenRewards}
+                >
+                  <span>🏆 Rewards Clubhouse</span>
+                  <span className="station-btn-arrow">➔</span>
+                </button>
                 <button
                   type="button"
                   className="station-btn sticker-btn"

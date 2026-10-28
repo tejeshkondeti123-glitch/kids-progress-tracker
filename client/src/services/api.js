@@ -94,3 +94,19 @@ export async function setVersionConfig(version) {
   });
   return handleResponse(res);
 }
+
+export async function fetchAnalytics(childId = 'child_001') {
+  const res = await fetch(`${API_BASE}/children/${childId}/analytics`);
+  return handleResponse(res);
+}
+
+export async function fetchActivityLog(childId = 'child_001', { subject = 'all', status = 'all', search = '' } = {}) {
+  const params = new URLSearchParams();
+  if (subject && subject !== 'all') params.append('subject', subject);
+  if (status && status !== 'all') params.append('status', status);
+  if (search && search.trim()) params.append('search', search.trim());
+
+  const qs = params.toString() ? `?${params.toString()}` : '';
+  const res = await fetch(`${API_BASE}/children/${childId}/activity-log${qs}`);
+  return handleResponse(res);
+}

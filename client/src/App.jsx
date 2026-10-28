@@ -8,6 +8,14 @@ import StoryTimeGame from './components/StoryTimeGame';
 import AlphabetSafariGame from './components/AlphabetSafariGame';
 import StickerBookModal from './components/StickerBookModal';
 import ParentalGateModal from './components/ParentalGateModal';
+import MathAdventureGame from './components/MathAdventureGame';
+import RewardsAndGamificationModal from './components/RewardsAndGamificationModal';
+import CourseJourneyMap from './components/CourseJourneyMap';
+import {
+  COURSE_LEVELS,
+  getChildCourseProgress,
+  saveChildCourseProgress,
+} from './services/curriculumCourse';
 import {
   fetchChildren,
   fetchDailySummary,
@@ -21,12 +29,19 @@ export default function App() {
   // Navigation mode: 'kids' (Khan Academy Kids App) | 'parent' (Parent Dashboard)
   const [appMode, setAppMode] = useState('kids');
 
-  // Active game modal: null | 'counting' | 'shapes' | 'story' | 'alphabet'
+  // Active game modal: null | 'counting' | 'shapes' | 'story' | 'alphabet' | 'addition' | 'subtraction' | 'multiplication' | 'division'
   const [activeGame, setActiveGame] = useState(null);
 
   // Modals
   const [isParentGateOpen, setIsParentGateOpen] = useState(false);
   const [isStickerBookOpen, setIsStickerBookOpen] = useState(false);
+  const [isRewardsModalOpen, setIsRewardsModalOpen] = useState(false);
+  const [isCourseMapOpen, setIsCourseMapOpen] = useState(false);
+
+  // Step-by-step Course Progress
+  const [courseProgress, setCourseProgress] = useState(() =>
+    getChildCourseProgress('child_001')
+  );
 
   // Children state
   const [availableChildren, setAvailableChildren] = useState([
@@ -137,15 +152,52 @@ export default function App() {
   // Switch learner
   const handleSelectChild = (child) => {
     setActiveChild(child);
+    setCourseProgress(getChildCourseProgress(child.id));
     sounds.playPop(480);
     showToast(`Switched active learner to ${child.name}!`);
   };
 
   // Game completion callback from kid's activity
   const handleGameComplete = ({ skill, status }) => {
-    setStarCount((prev) => prev + 3);
+    setStarCount((prev) => prev + 5);
     loadSummary(); // Refresh summary in background
-    showToast(`⭐ Earned 3 Stars! "${skill}" saved to learning profile.`);
+
+    // Find if this corresponds to a course level
+    const matchedLvl = COURSE_LEVELS.find(
+      (l) => l.skill === skill || l.gameType === activeGame
+    );
+
+    if (matchedLvl) {
+      setCourseProgress((prev) => {
+        const completed = new Set(prev?.completedLevelIds || []);
+        completed.add(matchedLvl.id);
+
+        const isGraduated = completed.size >= COURSE_LEVELS.length;
+        const nextLvl = COURSE_LEVELS.find((l) => !completed.has(l.id));
+
+        const updated = {
+          ...prev,
+          completedLevelIds: Array.from(completed),
+          currentLevelNum: nextLvl ? nextLvl.levelNum : COURSE_LEVELS.length,
+          isGraduated,
+        };
+
+        saveChildCourseProgress(activeChild?.id, updated);
+
+        if (isGraduated) {
+          sounds.playFanfare();
+          showToast(`🎓 CONGRATULATIONS! You finished all 8 Levels of the Course!`);
+        } else if (nextLvl) {
+          showToast(
+            `⭐ Level ${matchedLvl.levelNum} Passed! Level ${nextLvl.levelNum} (${nextLvl.title}) is now UNLOCKED! 🚀`
+          );
+        }
+
+        return updated;
+      });
+    } else {
+      showToast(`⭐ Earned 5 Stars! "${skill}" saved to learning profile.`);
+    }
   };
 
   return (
@@ -174,6 +226,15 @@ export default function App() {
             sounds.playPop(520);
             setIsStickerBookOpen(true);
           }}
+          onOpenRewards={() => {
+            sounds.playPop(520);
+            setIsRewardsModalOpen(true);
+          }}
+          courseProgress={courseProgress}
+          onOpenCourseMap={() => {
+            sounds.playPop(520);
+            setIsCourseMapOpen(true);
+          }}
         />
       )}
 
@@ -197,6 +258,13 @@ export default function App() {
             sounds.playPop(440);
             setAppMode('kids');
           }}
+          onLaunchMathPractice={(modKey = 'addition') => {
+            sounds.playPop(480);
+            setAppMode('kids');
+            setActiveGame(modKey);
+          }}
+          courseProgress={courseProgress}
+          onOpenCourseMap={() => setIsCourseMapOpen(true)}
         />
       )}
 
@@ -211,6 +279,43 @@ export default function App() {
         onClose={() => setIsParentGateOpen(false)}
       />
 
+      {/* MODAL: STEP-BY-STEP COURSE JOURNEY MAP */}
+      {isCourseMapOpen && (
+        <CourseJourneyMap
+          childName={activeChild?.name || 'Sarah'}
+          courseProgress={courseProgress}
+          onLaunchLevel={(gameType) => {
+            setIsCourseMapOpen(false);
+            sounds.playPop(500);
+            setActiveGame(gameType);
+          }}
+          onToggleUnlockAll={() => {
+            setCourseProgress((prev) => {
+              const updated = { ...prev, allUnlocked: !prev?.allUnlocked };
+              saveChildCourseProgress(activeChild?.id, updated);
+              showToast(
+                updated.allUnlocked
+                  ? 'Parent Mode: All Levels Unlocked!'
+                  : 'Sequential Level Locking Restored!'
+              );
+              return updated;
+            });
+          }}
+          onResetCourse={() => {
+            const reset = {
+              completedLevelIds: [],
+              currentLevelNum: 1,
+              isGraduated: false,
+              allUnlocked: false,
+            };
+            setCourseProgress(reset);
+            saveChildCourseProgress(activeChild?.id, reset);
+            showToast('Course reset to Level 1! Starting from the beginning.');
+          }}
+          onClose={() => setIsCourseMapOpen(false)}
+        />
+      )}
+
       {/* MODAL: STICKER BOOK */}
       {isStickerBookOpen && (
         <StickerBookModal
@@ -220,7 +325,30 @@ export default function App() {
         />
       )}
 
+      {/* MODAL: REWARDS & GAMIFICATION CLUBHOUSE */}
+      {isRewardsModalOpen && (
+        <RewardsAndGamificationModal
+          childName={activeChild?.name || 'Sarah'}
+          starCount={starCount}
+          onSpendStars={(amount) => {
+            setStarCount((prev) => Math.max(0, prev - amount));
+          }}
+          onClose={() => setIsRewardsModalOpen(false)}
+        />
+      )}
+
       {/* PLAYABLE GAME OVERLAYS */}
+      {/* 1. CREATIVE MATH ADVENTURES (Addition, Subtraction, Multiplication, Division) */}
+      {['addition', 'subtraction', 'multiplication', 'division', 'math'].includes(activeGame) && (
+        <MathAdventureGame
+          initialModule={activeGame === 'math' ? 'addition' : activeGame}
+          childId={activeChild?.id || 'child_001'}
+          childName={activeChild?.name || 'Sarah'}
+          onClose={() => setActiveGame(null)}
+          onCompleteActivity={handleGameComplete}
+        />
+      )}
+
       {activeGame === 'counting' && (
         <CountingPartyGame
           childId={activeChild?.id || 'child_001'}

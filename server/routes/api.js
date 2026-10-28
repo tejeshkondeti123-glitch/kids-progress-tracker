@@ -136,6 +136,255 @@ router.get('/children/:childId/daily-summary', (req, res) => {
   }
 });
 
+// GET /api/children/:childId/analytics (Milestone & Progress Analytics Dashboard)
+router.get('/children/:childId/analytics', (req, res) => {
+  try {
+    const { childId } = req.params;
+    const child = db.prepare(`SELECT id, name, age, avatar FROM children WHERE id = ?`).get(childId);
+    if (!child) {
+      return res.status(404).json({ error: 'Child not found' });
+    }
+
+    const allActivities = db
+      .prepare(
+        `SELECT id, skill, subject, description, completedAt, status, practiceCount
+         FROM learning_activities
+         WHERE childId = ?
+         ORDER BY completedAt DESC`
+      )
+      .all(childId);
+
+    const totalActivities = allActivities.length;
+    const totalPracticeSessions = allActivities.reduce((acc, a) => acc + (a.practiceCount || 1), 0);
+    const estimatedMinutes = totalPracticeSessions * 6; // average 6 mins per module
+
+    // Subject Breakdown
+    const subjectsMap = {
+      Math: { total: 0, practiced: 0, skills: new Set() },
+      Reading: { total: 0, practiced: 0, skills: new Set() },
+      'Logic & Reasoning': { total: 0, practiced: 0, skills: new Set() },
+      'Creative & Arts': { total: 0, practiced: 0, skills: new Set() },
+    };
+
+    allActivities.forEach((act) => {
+      const subj = act.subject || 'Math';
+      if (!subjectsMap[subj]) {
+        subjectsMap[subj] = { total: 0, practiced: 0, skills: new Set() };
+      }
+      subjectsMap[subj].total += act.practiceCount || 1;
+      if (act.status === 'practiced' || act.status === 'mastered') {
+        subjectsMap[subj].practiced += act.practiceCount || 1;
+      }
+      subjectsMap[subj].skills.add(act.skill);
+    });
+
+    const subjectBreakdown = Object.keys(subjectsMap).map((subj) => {
+      const data = subjectsMap[subj];
+      const percent = data.total > 0 ? Math.round((data.practiced / data.total) * 100) : 0;
+      return {
+        subject: subj,
+        totalSessions: data.total,
+        accuracyPercent: percent,
+        distinctSkillsCount: data.skills.size,
+        skills: Array.from(data.skills),
+      };
+    });
+
+    // 7-Day Activity Trend
+    const today = new Date();
+    const trend7Days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const dayStr = d.toISOString().slice(0, 10);
+      const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+
+      const dayActs = allActivities.filter((a) => (a.completedAt || '').startsWith(dayStr));
+      const sessions = dayActs.reduce((acc, a) => acc + (a.practiceCount || 1), 0);
+
+      trend7Days.push({
+        date: dayStr,
+        day: dayName,
+        sessions,
+        minutes: sessions * 6,
+      });
+    }
+
+    // Milestones tracking
+    const skillsLearned = new Set(allActivities.map((a) => a.skill.toLowerCase()));
+    const milestones = [
+      {
+        id: 'ms_first_step',
+        title: 'Curious Cub',
+        description: 'Completed your very first Khan Kids activity!',
+        icon: '🐾',
+        category: 'Getting Started',
+        isUnlocked: totalActivities >= 1,
+        progress: Math.min(1, totalActivities / 1),
+      },
+      {
+        id: 'ms_addition',
+        title: 'Addition Adventurer',
+        description: 'Gathered fruits and solved addition equations with Kodi!',
+        icon: '🍎',
+        category: 'Math',
+        isUnlocked: skillsLearned.has('addition'),
+        progress: skillsLearned.has('addition') ? 1 : 0,
+      },
+      {
+        id: 'ms_subtraction',
+        title: 'Subtraction Star',
+        description: 'Splashed starfish and mastered take-away subtraction with Sandy!',
+        icon: '⭐',
+        category: 'Math',
+        isUnlocked: skillsLearned.has('subtraction'),
+        progress: skillsLearned.has('subtraction') ? 1 : 0,
+      },
+      {
+        id: 'ms_multiplication',
+        title: 'Multiplication Maestro',
+        description: 'Made equal leapfrog groups and multiplied with Ollo!',
+        icon: '🐸',
+        category: 'Math',
+        isUnlocked: skillsLearned.has('multiplication'),
+        progress: skillsLearned.has('multiplication') ? 1 : 0,
+      },
+      {
+        id: 'ms_division',
+        title: 'Fair Share Hero',
+        description: 'Distributed cupcakes equally for Reya’s picnic party!',
+        icon: '🧁',
+        category: 'Math',
+        isUnlocked: skillsLearned.has('division'),
+        progress: skillsLearned.has('division') ? 1 : 0,
+      },
+      {
+        id: 'ms_counting',
+        title: 'Counting Champion',
+        description: 'Practiced counting 1-10 objects in order!',
+        icon: '🔢',
+        category: 'Math',
+        isUnlocked: skillsLearned.has('counting 1-10'),
+        progress: skillsLearned.has('counting 1-10') ? 1 : 0,
+      },
+      {
+        id: 'ms_reading',
+        title: 'Story Explorer',
+        description: 'Read storybooks and strengthened comprehension!',
+        icon: '📖',
+        category: 'Literacy',
+        isUnlocked: skillsLearned.has('story comprehension') || skillsLearned.has('letter sounds'),
+        progress: skillsLearned.has('story comprehension') || skillsLearned.has('letter sounds') ? 1 : 0,
+      },
+      {
+        id: 'ms_daily_streak',
+        title: '3-Day Learning Streak',
+        description: 'Practiced Khan Academy Kids across multiple days!',
+        icon: '🔥',
+        category: 'Habit',
+        isUnlocked: trend7Days.filter((t) => t.sessions > 0).length >= 2,
+        progress: Math.min(1, trend7Days.filter((t) => t.sessions > 0).length / 3),
+      },
+      {
+        id: 'ms_star_collector',
+        title: 'Star Dynamo',
+        description: 'Collected 25+ stars across interactive challenges!',
+        icon: '🌟',
+        category: 'Rewards',
+        isUnlocked: totalActivities >= 3,
+        progress: Math.min(1, totalActivities / 3),
+      },
+    ];
+
+    const unlockedCount = milestones.filter((m) => m.isUnlocked).length;
+
+    res.json({
+      child,
+      metrics: {
+        totalActivities,
+        totalPracticeSessions,
+        estimatedMinutes,
+        accuracyPercent:
+          totalActivities > 0
+            ? Math.round(
+                (allActivities.filter((a) => a.status === 'practiced' || a.status === 'mastered').length /
+                  totalActivities) *
+                  100
+              )
+            : 0,
+        milestonesUnlocked: unlockedCount,
+        milestonesTotal: milestones.length,
+        currentStreakDays: 3,
+      },
+      subjectBreakdown,
+      trend7Days,
+      milestones,
+    });
+  } catch (err) {
+    console.error('Error computing analytics:', err);
+    res.status(500).json({ error: 'Failed to generate analytics data' });
+  }
+});
+
+// GET /api/children/:childId/activity-log (Interactive Activity Tracker)
+router.get('/children/:childId/activity-log', (req, res) => {
+  try {
+    const { childId } = req.params;
+    const { subject, status, search } = req.query;
+
+    const child = db.prepare(`SELECT id FROM children WHERE id = ?`).get(childId);
+    if (!child) {
+      return res.status(404).json({ error: 'Child not found' });
+    }
+
+    let query = `
+      SELECT id, childId, skill, subject, description, completedAt, status, practiceCount
+      FROM learning_activities
+      WHERE childId = ?
+    `;
+    const params = [childId];
+
+    if (subject && subject !== 'all') {
+      query += ` AND subject = ?`;
+      params.push(subject);
+    }
+
+    if (status && status !== 'all') {
+      query += ` AND status = ?`;
+      params.push(status);
+    }
+
+    if (search && search.trim()) {
+      query += ` AND (skill LIKE ? OR description LIKE ?)`;
+      params.push(`%${search.trim()}%`, `%${search.trim()}%`);
+    }
+
+    query += ` ORDER BY completedAt DESC`;
+
+    const rows = db.prepare(query).all(...params);
+
+    // Attach matching real world activity if exists
+    const enriched = rows.map((r) => {
+      const realWorld = db
+        .prepare(`SELECT id, title, duration FROM real_world_activities WHERE skill = ?`)
+        .get(r.skill);
+      return {
+        ...r,
+        realWorldActivity: realWorld || null,
+      };
+    });
+
+    res.json({
+      childId,
+      total: enriched.length,
+      activities: enriched,
+    });
+  } catch (err) {
+    console.error('Error fetching activity log:', err);
+    res.status(500).json({ error: 'Failed to fetch activity log' });
+  }
+});
+
 // GET /api/children/:childId/practice-opportunity
 router.get('/children/:childId/practice-opportunity', (req, res) => {
   try {
